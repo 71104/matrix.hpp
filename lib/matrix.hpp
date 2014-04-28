@@ -99,15 +99,15 @@ struct mat {
 };
 
 
-typedef mat<2, 2> mat2;
+typedef mat<2, 2> mat22, mat2;
 typedef mat<2, 3> mat23;
 typedef mat<2, 4> mat24;
 typedef mat<3, 2> mat32;
-typedef mat<3, 3> mat3;
+typedef mat<3, 3> mat33, mat3;
 typedef mat<3, 4> mat34;
 typedef mat<4, 2> mat42;
 typedef mat<4, 3> mat43;
-typedef mat<4, 4> mat4;
+typedef mat<4, 4> mat44, mat4;
 
 
 template<unsigned int _n, typename _Type = double>
