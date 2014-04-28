@@ -4,7 +4,7 @@
 #include <cassert>
 
 
-template<unsigned int _n, unsigned int _m, typename _Type = double>
+template<unsigned int _n, unsigned int _m = _n, typename _Type = double>
 struct mat {
 	_Type m_a[_m][_n];
 
@@ -13,14 +13,6 @@ struct mat {
 	mat(_Type (&&a_a)[_m][_n])
 		:
 	m_a(move(a_a)) {}
-
-	mat(_Type const &rValue) {
-		for (unsigned int i = 0; i < _n; ++i) {
-			for (unsigned int j = 0; j < _m; ++j) {
-				m_a[i][j] = rValue;
-			}
-		}
-	}
 
 	struct row {
 		_Type (&m_ra)[_m][_n];
@@ -60,6 +52,16 @@ struct mat {
 	inline const_row operator [] (unsigned int i) const {
 		assert(i < _n);
 		return const_row(m_a, i);
+	}
+
+	mat<_m, _n, _Type> transpose() const {
+		mat<_m, _n, _Type> Result;
+		for(unsigned int i = 0; i < _n; ++i) {
+			for(unsigned int j = 0; j < _m; ++j) {
+				Result[j][i] = m_a[j][i];
+			}
+		}
+		return Result;
 	}
 
 	mat<_n, _m, _Type> operator + (mat<_n, _m, _Type> const &r) const {
