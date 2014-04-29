@@ -4,7 +4,7 @@
 #include <cassert>
 
 
-template<unsigned int _n, unsigned int _m = _n, typename _Type = double>
+template<unsigned int _n, unsigned int _m, typename _Type = double>
 struct mat {
 	_Type m_a[_m][_n];
 
@@ -65,17 +65,26 @@ struct mat {
 	}
 
 	mat<_n, _m, _Type> operator + (mat<_n, _m, _Type> const &r) const {
-		mat<_n, _m> Result;
+		mat<_n, _m, _Type> Result;
 		for (unsigned int i = 0; i < _n; ++i) {
 			for (unsigned int j = 0; j < _m; ++j) {
 				Result[i][j] += m_a[j][i] + r[i][j];
 			}
 		}
 		return Result;
+	}
+
+	mat<_n, _m, _Type> &operator += (mat<_n, _m, _Type> const &r) {
+		for (unsigned int i = 0; i < _n; ++i) {
+			for (unsigned int j = 0; j < _m; ++j) {
+				m_a[j][i] += r[i][j];
+			}
+		}
+		return *this;
 	}
 
 	mat<_n, _m, _Type> operator - (mat<_n, _m, _Type> const &r) const {
-		mat<_n, _m> Result;
+		mat<_n, _m, _Type> Result;
 		for (unsigned int i = 0; i < _n; ++i) {
 			for (unsigned int j = 0; j < _m; ++j) {
 				Result[i][j] += m_a[j][i] + r[i][j];
@@ -84,14 +93,33 @@ struct mat {
 		return Result;
 	}
 
+	mat<_n, _m, _Type> &operator -= (mat<_n, _m, _Type> const &r) {
+		for (unsigned int i = 0; i < _n; ++i) {
+			for (unsigned int j = 0; j < _m; ++j) {
+				m_a[j][i] -= r[i][j];
+			}
+		}
+		return *this;
+	}
+
 	template<unsigned int _l>
-	mat<_n, _l> operator * (mat<_m, _l, _Type> const &r) const {
-		mat<_n, _l> Result;
+	mat<_n, _l, _Type> operator * (mat<_m, _l, _Type> const &r) const {
+		mat<_n, _l, _Type> Result;
 		for (unsigned int i = 0; i < _n; ++i) {
 			for (unsigned int j = 0; j < _l; ++j) {
 				for (unsigned int k = 0; k < _m; ++k) {
 					Result[i][j] += m_a[k][i] * r[k][j];
 				}
+			}
+		}
+		return Result;
+	}
+
+	mat<_n, _m, _Type> operator * (_Type const &r) const {
+		mat<_n, _m, _Type> Result;
+		for (unsigned int i = 0; i < _n; ++i) {
+			for (unsigned int j = 0; j < _m; ++j) {
+				Result[i][j] = m_a[j][i] * r;
 			}
 		}
 		return Result;
