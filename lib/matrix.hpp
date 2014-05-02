@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <initializer_list>
+#include <cmath>
 
 
 namespace math {
@@ -394,6 +395,18 @@ namespace math {
 
 		inline vec<_n, _Type> &operator = (mat<_n, 1, _Type> &&rr) {
 			return mat<_n, 1, _Type>::operator = (move(rr));
+		}
+
+		inline _Type modulus() const {
+			_Type s(0);
+			for (unsigned int i = 0; i < _n; ++i) {
+				s += m_a[i] * m_a[i];
+			}
+			return sqrt(s);
+		}
+
+		inline _Type length() const {
+			return modulus();
 		}
 
 		_Type scalar(vec<_n, _Type> const &r) const {
