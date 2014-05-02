@@ -6,6 +6,10 @@
 
 namespace math {
 	template<unsigned int _n, unsigned int _m, typename _Type>
+	struct Minor {};
+
+
+	template<unsigned int _n, unsigned int _m, typename _Type>
 	struct Determinant {};
 
 
@@ -71,6 +75,10 @@ namespace math {
 				}
 			}
 			return Result;
+		}
+
+		inline _Type minor(unsigned int const i, unsigned int const j) const {
+			return Minor<_n, _n, _Type>::Compute(*this, i, j);
 		}
 
 		inline _Type det() const {
@@ -169,6 +177,49 @@ namespace math {
 
 
 	template<typename _Type>
+	struct Minor<1, 1, _Type> {
+		static inline _Type Compute(mat<1, 1, _Type> const &r, unsigned int const i, unsigned int const j) {
+			assert((i < 1) && (j < 1));
+			return 1;
+		};
+	};
+
+
+	template<typename _Type>
+	struct Minor<2, 2, _Type> {
+		static inline _Type Compute(mat<2, 2, _Type> const &r, unsigned int const i, unsigned int const j) {
+			assert((i < 2) && (j < 2));
+			return r.m_a[1 - j][1 - i];
+		};
+	};
+
+
+	template<unsigned int _n, typename _Type>
+	struct Minor<_n, _n, _Type> {
+		static _Type Compute(mat<_n, _n, _Type> const &r, unsigned int const i, unsigned int const j) {
+			mat<_n - 1, _n - 1, _Type> m;
+			for (unsigned int i2 = 0; i2 < i; ++i2) {
+				for (unsigned int j2 = 0; j2 < j; ++j2) {
+					m.m_a[j2][i2] = r.m_a[j2][i2];
+				}
+				for (unsigned int j2 = j + 1; j2 < _n; ++j2) {
+					m.m_a[j2 - 1][i2] = r.m_a[j2][i2];
+				}
+			}
+			for (unsigned int i2 = i + 1; i2 < _n; ++i2) {
+				for (unsigned int j2 = 0; j2 < j; ++j2) {
+					m.m_a[j2][i2 - 1] = r.m_a[j2][i2];
+				}
+				for (unsigned int j2 = j + 1; j2 < _n; ++j2) {
+					m.m_a[j2 - 1][i2 - 1] = r.m_a[j2][i2];
+				}
+			}
+			return m.det();
+		}
+	};
+
+
+	template<typename _Type>
 	struct Determinant<1, 1, _Type> {
 		static inline _Type Compute(mat<1, 1, _Type> const &r) {
 			return r.m_a[0][0];
@@ -221,7 +272,7 @@ namespace math {
 			_Type d(0);
 			int n = 1;
 			for (unsigned int j = 0; j < _n; ++j) {
-				// TODO
+				d += n * r.m_a[j][0] * r.minor(0, j);
 				n = -n;
 			}
 			return d;
