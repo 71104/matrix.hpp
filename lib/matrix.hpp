@@ -2,30 +2,34 @@
 
 #include <algorithm>
 #include <cassert>
+#include <initializer_list>
 
 
 namespace math {
-	template<unsigned int _n, unsigned int _m, typename _Type>
+	using namespace std;
+
+
+	template<unsigned int const _n, unsigned int const _m, typename _Type>
 	struct Minor {};
 
 
-	template<unsigned int _n, unsigned int _m, typename _Type>
+	template<unsigned int const _n, unsigned int const _m, typename _Type>
 	struct Determinant {};
 
 
-	template<unsigned int _n, unsigned int _m = _n, typename _Type = double>
+	template<unsigned int const _n, unsigned int const _m = _n, typename _Type = double>
 	struct mat {
 		_Type m_a[_m][_n];
 
 		mat() {}
 
-		mat(_Type const (&a_a)[_m][_n])
+		mat(_Type const (&a_ra)[_m][_n])
 			:
-		m_a(a_a) {}
+		m_a(a_ra) {}
 
-		mat(_Type (&&a_a)[_m][_n])
+		mat(_Type (&&a_rra)[_m][_n])
 			:
-		m_a(move(a_a)) {}
+		m_a(move(a_rra)) {}
 
 		struct row {
 			_Type (&m_ra)[_m][_n];
@@ -161,7 +165,7 @@ namespace math {
 			return *this;
 		}
 
-		template<unsigned int _l>
+		template<unsigned int const _l>
 		mat<_n, _l, _Type> operator * (mat<_m, _l, _Type> const &r) const {
 			mat<_n, _l, _Type> Result;
 			for (unsigned int i = 0; i < _n; ++i) {
@@ -194,7 +198,7 @@ namespace math {
 	};
 
 
-	template<unsigned int _n, typename _Type>
+	template<unsigned int const _n, typename _Type>
 	struct Minor<_n, _n, _Type> {
 		static _Type Compute(mat<_n, _n, _Type> const &r, unsigned int const i, unsigned int const j) {
 			mat<_n - 1, _n - 1, _Type> m;
@@ -266,14 +270,13 @@ namespace math {
 	};
 
 
-	template<unsigned int _n, typename _Type>
+	template<unsigned int const _n, typename _Type>
 	struct Determinant<_n, _n, _Type> {
 		static _Type Compute(mat<_n, _n, _Type> const &r) {
 			_Type d(0);
-			int n = 1;
+			int n = -1;
 			for (unsigned int j = 0; j < _n; ++j) {
-				d += n * r.m_a[j][0] * r.minor(0, j);
-				n = -n;
+				d += (n = -n) * r.m_a[j][0] * r.minor(0, j);
 			}
 			return d;
 		}
@@ -291,8 +294,122 @@ namespace math {
 	typedef mat<4, 4> mat44, mat4;
 
 
-	template<unsigned int _n, typename _Type = double>
-	struct vec : public mat<_n, 1, _Type> {};
+	template<unsigned int const _n, typename _Type>
+	struct VectorProduct {};
+
+
+	template<unsigned int const _n, typename _Type = double>
+	struct vec :
+		public mat<_n, 1, _Type>
+	{
+		_Type (&m_a)[_n];
+
+		vec()
+			:
+		m_a(mat<_n, 1, _Type>::m_a[0]) {}
+
+		vec(_Type const (&a_ra)[_n])
+			:
+		m_a(mat<_n, 1, _Type>::m_a[0]) {
+			for (unsigned int i = 0; i < _n; ++i) {
+				m_a[i] = a_ra[i];
+			}
+		}
+
+		vec(_Type (&&a_rra)[_n])
+			:
+		m_a(mat<_n, 1, _Type>::m_a[0]) {
+			for (unsigned int i = 0; i < _n; ++i) {
+				m_a[i] = move(a_rra[i]);
+			}
+		}
+
+		vec(initializer_list<_Type> const &il)
+			:
+		m_a(mat<_n, 1, _Type>::m_a[0]) {
+			unsigned int i = 0;
+			for (auto it = il.begin(); it != il.end(); ++it) {
+				m_a[i++] = *it;
+			}
+		}
+
+		vec(vec<_n, _Type> const &r)
+			:
+		mat<_n, 1, _Type>(r),
+			m_a(mat<_n, 1, _Type>::m_a[0]) {}
+
+		vec(vec<_n, _Type> &&rr)
+			:
+		mat<_n, 1, _Type>(move(rr)),
+			m_a(mat<_n, 1, _Type>::m_a[0]) {}
+
+		vec(mat<_n, 1, _Type> const &r)
+			:
+		mat<_n, 1, _Type>(r),
+			m_a(mat<_n, 1, _Type>::m_a[0]) {}
+
+		vec(mat<_n, 1, _Type> &&rr)
+			:
+		mat<_n, 1, _Type>(move(rr)),
+			m_a(mat<_n, 1, _Type>::m_a[0]) {}
+
+		inline vec<_n, _Type> &operator = (vec<_n, _Type> const &r) {
+			return mat<_n, 1, _Type>::operator = (r);
+		}
+
+		inline vec<_n, _Type> &operator = (vec<_n, _Type> &&rr) {
+			return mat<_n, 1, _Type>::operator = (move(rr));
+		}
+
+		inline vec<_n, _Type> &operator = (mat<_n, 1, _Type> const &r) {
+			return mat<_n, 1, _Type>::operator = (r);
+		}
+
+		inline vec<_n, _Type> &operator = (mat<_n, 1, _Type> &&rr) {
+			return mat<_n, 1, _Type>::operator = (move(rr));
+		}
+
+		_Type scalar(vec<_n, _Type> const &r) const {
+			_Type s(0);
+			for (unsigned int i = 0; i < _n; ++i) {
+				s += m_a[i] * r.m_a[i];
+			}
+			return s;
+		}
+
+		inline _Type inner(vec<_n, _Type> const &r) const {
+			return scalar(r);
+		}
+
+		inline _Type dot(vec<_n, _Type> const &r) const {
+			return scalar(r);
+		}
+
+		inline vec<_n, _Type> vector(vec<_n, _Type> const &r) const {
+			return VectorProduct<_n, _Type>::Compute(*this, r);
+		}
+
+		inline vec<_n, _Type> outer(vec<_n, _Type> const &r) const {
+			return vector(r);
+		}
+
+		inline vec<_n, _Type> cross(vec<_n, _Type> const &r) const {
+			return vector(r);
+		}
+	};
+
+
+	template<typename _Type>
+	struct VectorProduct<3, _Type> {
+		static vec<3, _Type> Compute(vec<3, _Type> const &ru, vec<3, _Type> const &rv) {
+			_Type a[3] = {
+				ru.m_a[1] * rv.m_a[2] - ru.m_a[2] * rv.m_a[1],
+				ru.m_a[2] * rv.m_a[0] - ru.m_a[0] * rv.m_a[2],
+				ru.m_a[0] * rv.m_a[1] - ru.m_a[1] * rv.m_a[0]
+			};
+			return vec<3, _Type>(a);
+		}
+	};
 
 
 	typedef vec<2> vec2;
