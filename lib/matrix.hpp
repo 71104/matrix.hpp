@@ -402,12 +402,11 @@ namespace math {
 	template<typename _Type>
 	struct VectorProduct<3, _Type> {
 		static vec<3, _Type> Compute(vec<3, _Type> const &ru, vec<3, _Type> const &rv) {
-			_Type a[3] = {
+			return {
 				ru.m_a[1] * rv.m_a[2] - ru.m_a[2] * rv.m_a[1],
 				ru.m_a[2] * rv.m_a[0] - ru.m_a[0] * rv.m_a[2],
 				ru.m_a[0] * rv.m_a[1] - ru.m_a[1] * rv.m_a[0]
 			};
-			return vec<3, _Type>(a);
 		}
 	};
 
