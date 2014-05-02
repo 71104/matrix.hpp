@@ -17,6 +17,10 @@ namespace math {
 	struct Determinant {};
 
 
+	template<unsigned int const _n, unsigned int const _m, typename _Type>
+	struct InvertedMatrix {};
+
+
 	template<unsigned int const _n, unsigned int const _m = _n, typename _Type = double>
 	struct mat {
 		_Type m_a[_m][_n];
@@ -87,6 +91,10 @@ namespace math {
 
 		inline _Type det() const {
 			return Determinant<_n, _m, _Type>::Compute(*this);
+		}
+
+		inline mat<_m, _n, _Type> invert() const {
+			return InvertedMatrix<_n, _m, _Type>::Compute(*this);
 		}
 
 		mat<_n, _m, _Type> operator + (mat<_n, _m, _Type> const &r) const {
@@ -176,6 +184,10 @@ namespace math {
 				}
 			}
 			return Result;
+		}
+
+		mat<_n, _n, _Type> operator / (mat<_m, _n, _Type> const &r) const {
+			return operator * (r.invert());
 		}
 	};
 
@@ -279,6 +291,21 @@ namespace math {
 				d += (n = -n) * r.m_a[j][0] * r.minor(0, j);
 			}
 			return d;
+		}
+	};
+
+
+	template<unsigned int const _n, typename _Type>
+	struct InvertedMatrix<_n, _n, _Type> {
+		static mat<_n, _n, _Type> Compute(mat<_n, _n, _Type> const &r) {
+			mat<_n, _n, _Type> m;
+			int n = -1;
+			for (unsigned int i = 0; i < _n; ++i) {
+				for (unsigned int j = 0; j < _n; ++j) {
+					m.m_a[i][j] = (n = -n) * r.minor(i, j);
+				}
+			}
+			return m / r.det();
 		}
 	};
 
