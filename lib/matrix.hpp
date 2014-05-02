@@ -27,7 +27,7 @@ namespace math {
 			_Type (&m_ra)[_m][_n];
 			unsigned int m_i;
 
-			row(_Type (&a_ra)[_m][_n], unsigned int a_i)
+			inline row(_Type (&a_ra)[_m][_n], unsigned int a_i)
 				:
 			m_ra(a_ra),
 				m_i(a_i) {}
@@ -42,7 +42,7 @@ namespace math {
 			_Type const (&m_ra)[_m][_n];
 			unsigned int m_i;
 
-			const_row(_Type const (&a_ra)[_m][_n], unsigned int a_i)
+			inline const_row(_Type const (&a_ra)[_m][_n], unsigned int a_i)
 				:
 			m_ra(a_ra),
 				m_i(a_i) {}
@@ -73,7 +73,7 @@ namespace math {
 			return Result;
 		}
 
-		inline _Type determinant() const {
+		inline _Type det() const {
 			return Determinant<_n, _m, _Type>::Compute(*this);
 		}
 
@@ -164,6 +164,53 @@ namespace math {
 				}
 			}
 			return Result;
+		}
+	};
+
+
+	template<typename _Type>
+	struct Determinant<1, 1, _Type> {
+		static inline _Type Compute(mat<1, 1, _Type> const &r) {
+			return r.m_a[0][0];
+		}
+	};
+
+
+	template<typename _Type>
+	struct Determinant<2, 2, _Type> {
+		static inline _Type Compute(mat<2, 2, _Type> const &r) {
+			return r.m_a[0][0] * r.m_a[1][1] - r.m_a[0][1] * r.m_a[1][0];
+		}
+	};
+
+
+	template<typename _Type>
+	struct Determinant<3, 3, _Type> {
+		static inline _Type Compute(mat<3, 3, _Type> const &r) {
+			return
+				r.m_a[0][0] * (r.m_a[1][1] * r.m_a[2][2] - r.m_a[1][2] * r.m_a[2][1]) -
+				r.m_a[1][0] * (r.m_a[0][1] * r.m_a[2][2] - r.m_a[0][2] * r.m_a[2][1]) +
+				r.m_a[2][0] * (r.m_a[0][1] * r.m_a[1][2] - r.m_a[0][2] * r.m_a[1][1]);
+		}
+	};
+
+
+	template<typename _Type>
+	struct Determinant<4, 4, _Type> {
+		static inline _Type Compute(mat<4, 4, _Type> const &r) {
+			return
+				r.m_a[0][0] * (r.m_a[1][1] * (r.m_a[2][2] * r.m_a[3][3] - r.m_a[2][3] * r.m_a[3][2]) -
+				               r.m_a[1][2] * (r.m_a[2][1] * r.m_a[3][3] - r.m_a[2][3] * r.m_a[3][1]) +
+				               r.m_a[1][3] * (r.m_a[2][1] * r.m_a[3][2] - r.m_a[2][2] * r.m_a[3][1])) -
+				r.m_a[0][1] * (r.m_a[1][0] * (r.m_a[2][2] * r.m_a[3][3] - r.m_a[2][3] * r.m_a[3][2]) -
+				               r.m_a[1][2] * (r.m_a[2][0] * r.m_a[3][3] - r.m_a[2][3] * r.m_a[3][0]) +
+				               r.m_a[1][3] * (r.m_a[2][0] * r.m_a[3][2] - r.m_a[2][2] * r.m_a[3][0])) +
+				r.m_a[0][2] * (r.m_a[1][0] * (r.m_a[2][1] * r.m_a[3][3] - r.m_a[2][3] * r.m_a[3][1]) -
+				               r.m_a[1][1] * (r.m_a[2][0] * r.m_a[3][3] - r.m_a[2][3] * r.m_a[3][0]) +
+				               r.m_a[1][3] * (r.m_a[2][0] * r.m_a[3][1] - r.m_a[2][1] * r.m_a[3][0])) -
+				r.m_a[0][3] * (r.m_a[1][0] * (r.m_a[2][1] * r.m_a[3][2] - r.m_a[2][2] * r.m_a[3][1]) -
+				               r.m_a[1][1] * (r.m_a[2][0] * r.m_a[3][2] - r.m_a[2][2] * r.m_a[3][0]) +
+				               r.m_a[1][2] * (r.m_a[2][0] * r.m_a[3][1] - r.m_a[2][1] * r.m_a[3][0]));
 		}
 	};
 
