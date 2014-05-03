@@ -397,7 +397,7 @@ namespace math {
 			return mat<_n, 1, _Type>::operator = (move(rr));
 		}
 
-		inline _Type modulus() const {
+		inline auto modulus() const -> decltype(sqrt(m_a[0])) {
 			_Type s(0);
 			for (unsigned int i = 0; i < _n; ++i) {
 				s += m_a[i] * m_a[i];
@@ -405,7 +405,7 @@ namespace math {
 			return sqrt(s);
 		}
 
-		inline _Type length() const {
+		inline auto length() const -> decltype(sqrt(m_a[0])) {
 			return modulus();
 		}
 
